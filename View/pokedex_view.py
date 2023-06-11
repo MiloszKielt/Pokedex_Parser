@@ -5,26 +5,98 @@ import json
 import re
 
 
-def unpack_content_json(file_name):
-    with open(file_name, 'r') as poke_file:
-        generations = json.load(poke_file)
-
-    return generations
-
-
 class Pokedex:
+    """ @class: Pokedex
+        @brief: This class displays the GUI of a pokedex to the user
+        @details: The class implements functionalities like searching for a
+                 specific pokemon or changing between the generations
+
+        @param pokemon_gens: List of pokemons unloaded from the pokemon.json file
+        @param window: Window which is the main display window for the app
+        @param frm_main: Frame in which user specifies the generation
+        @param frm_gen_view: Frame in which user browses through the pokemons
+        @param user_input: Input of a user in the search field
+    """
+
+    def __init__(self, file_name):
+        """ @param file_name: Name of file from which the data should be unpacked
+            @return: An initialized instance of pokedex class with specified filename
+        """
+        try:
+            self.pokemon_gens = self.unpack_content_json(file_name)
+        except FileNotFoundError as e:
+            print(f"file {e.filename} has not been found...")
+            print("The Pokemon data has not been loaded, please load the data before execution."
+                  "\nAborting execution...")
+            sys.exit(-1)
+        else:
+            print("Initiating the pokedex...")
+
+        self.pokemon_images = {}
+        self.treeview = None
+        self.window = tk.Tk()
+        self.window.geometry("600x400")
+        self.frm_main = tk.Frame(master=self.window)
+        self.frm_main.pack()
+
+        lbl_welcome = tk.Label(
+            text="Choose Generation",
+            font='Arial',
+            master=self.frm_main
+        )
+        lbl_welcome.pack(pady=20)
+
+        frm_btns = tk.Frame(master=self.frm_main)
+        frm_btns.pack()
+
+        i = 0
+        j = 0
+        for generation, pokemon in self.pokemon_gens.items():
+            frm_btn = tk.Frame(master=frm_btns, relief=tk.RAISED, borderwidth=1)
+            frm_btn.grid(row=j % 3, column=i % 3, padx=2, pady=2)
+            btn_gen = tk.Button(text='Generation ' + generation, width=15, height=5, master=frm_btn,
+                                command=lambda gen=generation: self.switch_to_gen_view(gen))
+            btn_gen.pack()
+            i += 1
+            j += 1 if i % 3 == 0 else 0
+
+        self.frm_gen_view = tk.Frame(master=self.window)
+        self.user_input = tk.StringVar()
+
+        self.frm_main.pack()
+
+    @staticmethod
+    def unpack_content_json(file_name):
+        """ @desc: This method is used to unpack the content of the .json file containing
+                   pokemon data
+            @param file_name: Name of file from which the data should be unpacked
+            @return: Pokemon data split between their generations
+        """
+        with open(file_name, 'r') as poke_file:
+            generations = json.load(poke_file)
+
+        return generations
 
     def go_back_to_menu(self):
+        """ @desc: This method is used to go back to view of generation choice
+        """
         self.frm_gen_view.pack_forget()
         self.user_input = tk.StringVar()
         self.frm_main.pack(fill='both', expand=1)
 
     def switch_to_gen_view(self, gen_num):
+        """ @desc: This method is used to switch from the main menu to generation browsing
+            @param gen_num: Number of generation which the user wants to browse
+        """
         self.frm_main.pack_forget()
         self.update_gen_view(gen_num)
         self.frm_gen_view.pack(fill='both', expand=1)
 
     def search(self, gen_num):
+        """ @desc: This method searches the generation list in order to find matching
+                   pokemon
+            @param gen_num: Number of generation to be searched
+        """
         text = self.user_input.get()
         pkmn_search_list = self.pokemon_gens[gen_num]
         found = []
@@ -35,6 +107,9 @@ class Pokedex:
         return found
 
     def update_gen_view(self, gen_num):
+        """ @desc: Method used to update the view of the generation's pokemon list
+            @param gen_num: Number of generation
+        """
         for widget in self.frm_gen_view.winfo_children():
             widget.destroy()
 
@@ -43,8 +118,6 @@ class Pokedex:
 
         btn_back = tk.Button(
             text='Go Back',
-            width=10,
-            height=2,
             master=frm_top,
             command=self.go_back_to_menu
         )
@@ -76,7 +149,7 @@ class Pokedex:
 
         self.treeview = ttk.Treeview(self.frm_gen_view, style="Pokemon.Treeview")
 
-        self.treeview['columns'] = ('Number', 'Name', 'Types', 'Image')
+        self.treeview['columns'] = ('Number', 'Name', 'Types')
 
         self.treeview.heading('#0', text='Image')
         self.treeview.heading('Number', text='National Number')
@@ -85,7 +158,7 @@ class Pokedex:
 
         self.treeview.column('#0', width=200)
         self.treeview.column('Number', width=100)
-        self.treeview.column('Name', width=150)
+        self.treeview.column('Name', width=175)
         self.treeview.column('Types', width=200)
 
         if self.user_input.get() == '':
@@ -103,60 +176,3 @@ class Pokedex:
             self.treeview.insert('', tk.END, text='', values=(number, name, ptypes), image=image)
 
         self.treeview.pack(fill=tk.BOTH, expand=True)
-
-    def __init__(self, file_name):
-        try:
-            self.pokemon_gens = unpack_content_json(file_name)
-        except FileNotFoundError as e:
-            print("The Pokemon data has not been loaded, aborting execution")
-            sys.exit(-1)
-        
-        self.pokemon_images = {}
-        self.treeview = None
-        self.window = tk.Tk()
-        self.user_input = tk.StringVar()
-        self.window.geometry("600x400")
-
-        self.frm_main = tk.Frame(master=self.window)
-        self.frm_main.pack()
-
-        lbl_welcome = tk.Label(
-            text="Choose Generation",
-            font='Arial',
-            master=self.frm_main
-        )
-        lbl_welcome.pack(pady=20)
-
-        frm_btns = tk.Frame(master=self.frm_main)
-        frm_btns.pack()
-
-        i = 0
-        j = 0
-        for generation, pokemon in self.pokemon_gens.items():
-            frm_btn = tk.Frame(
-                master=frm_btns,
-                relief=tk.RAISED,
-                borderwidth=1
-            )
-            frm_btn.grid(row=i % 3, column=j % 3, padx=2, pady=2)
-            i += 1
-            j += 1 if i % 3 == 0 else 0
-
-            btn_gen = tk.Button(
-                text='Generation ' + generation,
-                width=15,
-                height=5,
-                master=frm_btn,
-                command=lambda gen=generation: self.switch_to_gen_view(gen)
-            )
-            btn_gen.pack()
-
-        self.frm_gen_view = tk.Frame(master=self.window)
-
-        self.frm_main.pack()
-        self.window.mainloop()
-
-
-if __name__ == '__main__':
-    fname = "../data/pokemon.json"
-    dex = Pokedex(fname)

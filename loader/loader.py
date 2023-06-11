@@ -1,11 +1,15 @@
-from bulbapedia_parser import ListParser, PokemonParser
+from bulbapedia_parser import PokemonParser
 import json
 
+# link to the wiki of pokemon list
 list_link = 'https://bulbapedia.bulbagarden.net/wiki/List_of_Pokémon_by_National_Pokédex_number'
 
 
 def load_pokemons():
-    pkmn_parser = ListParser(list_link)
+    """ @desc: Function used to load the pokemon data from the website to the
+               .json file
+    """
+    pkmn_parser = PokemonParser(list_link)
     pokemon_list = pkmn_parser.handle_get_pokemons()
     i = 1
 
