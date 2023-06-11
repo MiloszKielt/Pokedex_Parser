@@ -12,15 +12,11 @@ REQUIRED LIBRARIES\DEPENDENCIES:
 
 HOW TO RUN:
 ------------------------------------------------------------------
--If you execute the program for the first time:
    1. Install all required packages
    2. Run the loader.py script located in 'loader' folder, which
       will load all required data for the program to run.
    3. Run main.py
    4. Enjoy!
--If you already loaded the data:
-   1. Run main.py
-   2. Enjoy!
 ------------------------------------------------------------------
 
 KEY FEATURES:
