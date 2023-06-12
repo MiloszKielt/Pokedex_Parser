@@ -38,6 +38,12 @@ class Pokedex:
         self.window.geometry("600x400")
         self.frm_main = tk.Frame(master=self.window)
         self.frm_main.pack()
+        self.btn_type_chart = tk.Button(master=self.frm_main, command=self.switch_to_type_chart, text='Check type charts')
+        self.btn_type_chart.pack()
+
+        self.frm_type_chart = tk.Frame(master=self.window)
+        self.type_chart_img = tk.PhotoImage(file="data/images/type_chart.png", master=self.frm_type_chart)
+        self.frm_type_chart.pack()
 
         lbl_welcome = tk.Label(
             text="Choose Generation",
@@ -81,7 +87,9 @@ class Pokedex:
         """ @desc: This method is used to go back to view of generation choice
         """
         self.frm_gen_view.pack_forget()
+        self.frm_type_chart.pack_forget()
         self.user_input = tk.StringVar()
+        self.window.geometry("600x400")
         self.frm_main.pack(fill='both', expand=1)
 
     def switch_to_gen_view(self, gen_num):
@@ -90,7 +98,19 @@ class Pokedex:
         """
         self.frm_main.pack_forget()
         self.update_gen_view(gen_num)
+        self.window.geometry("600x1200")
         self.frm_gen_view.pack(fill='both', expand=1)
+
+    def switch_to_type_chart(self):
+        """ @desc: Method to switch between main menu view and type chart view
+        """
+        self.frm_main.pack_forget()
+        self.window.geometry("1000x480")
+        label = tk.Label(image=self.type_chart_img, master=self.frm_type_chart)
+        label.pack()
+        button_back = tk.Button(text="go back", command=self.go_back_to_menu, master=self.frm_type_chart)
+        button_back.pack()
+        self.frm_type_chart.pack(fill='both', expand=1)
 
     def search(self, gen_num):
         """ @desc: This method searches the generation list in order to find matching
